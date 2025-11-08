@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type ChangeEvent } from 'react'
 import chroma from 'chroma-js'
 import { useTowerStore, type GradientEasing } from '../store/useTowerStore'
 
@@ -23,18 +23,93 @@ export function ControlsPanel() {
     scaleEasing,
     bottomColor,
     topColor,
+    presets,
+    activePresetId,
     setParams,
     updateRange,
+    savePreset,
+    loadPreset,
+    deletePreset,
+    resetDefaults,
   } = useTowerStore()
+  const [presetName, setPresetName] = useState('')
 
   const gradientPreview = useMemo(() => {
     const scale = chroma.scale([bottomColor, topColor]).mode('lab')
     return `linear-gradient(90deg, ${scale(0).hex()}, ${scale(1).hex()})`
   }, [bottomColor, topColor])
 
+  const presetValue = activePresetId ?? 'custom'
+  const isSaveDisabled = presetName.trim().length === 0
+
+  const handlePresetSelect = (event: ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value
+    if (value === 'custom') {
+      return
+    }
+    loadPreset(value)
+  }
+
+  const handleSavePreset = () => {
+    if (isSaveDisabled) {
+      return
+    }
+    savePreset(presetName)
+    setPresetName('')
+  }
+
+  const handleDeletePreset = () => {
+    if (!activePresetId) {
+      return
+    }
+    deletePreset(activePresetId)
+  }
+
   return (
     <div className="panel">
       <h2>Parametric Controls</h2>
+
+      <section>
+        <h3>Presets</h3>
+        <label className="control-block">
+          <div className="control-header">
+            <span>Saved presets</span>
+            <span>{presets.length}</span>
+          </div>
+          <select value={presetValue} onChange={handlePresetSelect}>
+            <option value="custom">Custom (unsaved)</option>
+            {presets.map((preset) => (
+              <option key={preset.id} value={preset.id}>
+                {preset.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <div className="preset-form">
+          <input
+            type="text"
+            placeholder="New preset name"
+            value={presetName}
+            onChange={(event) => setPresetName(event.target.value)}
+          />
+          <button type="button" className="btn primary" disabled={isSaveDisabled} onClick={handleSavePreset}>
+            Save preset
+          </button>
+        </div>
+        <div className="preset-actions">
+          <button type="button" className="btn ghost" onClick={resetDefaults}>
+            Reset to defaults
+          </button>
+          <button
+            type="button"
+            className="btn danger"
+            onClick={handleDeletePreset}
+            disabled={!activePresetId}
+          >
+            Delete active
+          </button>
+        </div>
+      </section>
 
       <section>
         <h3>Tower Dimensions</h3>
@@ -171,7 +246,9 @@ function DualInput({
       <div className="control-header">
         <span>{label}</span>
         <span>
-          {formatValue(valueMin)} → {formatValue(valueMax)}
+          {formatValue(valueMin)}
+          {' -> '}
+          {formatValue(valueMax)}
         </span>
       </div>
       <div className="dual-input__fields">
