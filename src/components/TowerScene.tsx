@@ -2,15 +2,15 @@ import { Suspense, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stats } from '@react-three/drei'
 import { useTowerStore } from '../store/useTowerStore'
-import { buildFloorsData, type FloorSlice } from '../lib/tower'
-
-type Floor = FloorSlice
+import { buildFloorsData, buildSphereInstances, type FloorSlice, type SphereInstance } from '../lib/tower'
 
 export function TowerScene() {
   const params = useTowerStore()
 
-  const floorsData: Floor[] = useMemo(() => {
-    return buildFloorsData(params)
+  const floorsData = useMemo<FloorSlice[]>(() => buildFloorsData(params), [params])
+
+  const spheres = useMemo(() => {
+    return buildSphereInstances(params)
   }, [params])
 
   const totalHeight = useMemo(
@@ -34,7 +34,12 @@ export function TowerScene() {
         shadow-mapSize-height={2048}
       />
       <Suspense fallback={null}>
-        <Tower floors={floorsData} baseRadius={params.baseRadius} floorHeight={params.floorHeight} />
+        <Tower
+          spheres={spheres}
+          baseRadius={params.baseRadius}
+          floorHeight={params.floorHeight}
+          floorsCount={floorsData.length}
+        />
         <Ground planeSize={params.baseRadius * 12} />
       </Suspense>
       <Stats showPanel={0} className="stats-overlay" />
@@ -50,32 +55,29 @@ export function TowerScene() {
 }
 
 type TowerProps = {
-  floors: Floor[]
+  spheres: SphereInstance[]
   baseRadius: number
   floorHeight: number
+  floorsCount: number
 }
 
-function Tower({ floors, baseRadius, floorHeight }: TowerProps) {
-  const slabHeight = floorHeight * 0.9
-
+function Tower({ spheres, baseRadius, floorHeight, floorsCount }: TowerProps) {
   return (
-    <group position={[0, slabHeight / 2, 0]}>
-      {floors.map((floor, index) => (
+    <group>
+      {spheres.map((sphere, index) => (
         <mesh
-          key={`floor-${index}`}
-          position={[0, floor.y, 0]}
-          rotation={[0, floor.rotation, 0]}
-          scale={[floor.scale, 1, floor.scale]}
+          key={`sphere-${index}`}
+          position={sphere.position}
           castShadow
           receiveShadow
         >
-          <boxGeometry args={[baseRadius * 2, slabHeight, baseRadius * 2]} />
-          <meshStandardMaterial color={floor.color} roughness={0.5} metalness={0.1} />
+          <sphereGeometry args={[sphere.radius, 32, 24]} />
+          <meshStandardMaterial color={sphere.color} roughness={0.4} metalness={0.15} />
         </mesh>
       ))}
-      <mesh position={[0, floors.length * floorHeight * 0.5, 0]} castShadow receiveShadow>
+      <mesh position={[0, floorsCount * floorHeight * 0.5, 0]} castShadow receiveShadow>
         <cylinderGeometry
-          args={[baseRadius * 0.2, baseRadius * 0.2, floors.length * floorHeight * 0.98, 24]}
+          args={[baseRadius * 0.2, baseRadius * 0.2, floorsCount * floorHeight * 0.98, 24]}
         />
         <meshStandardMaterial color="#94a3b8" roughness={0.3} metalness={0.6} />
       </mesh>

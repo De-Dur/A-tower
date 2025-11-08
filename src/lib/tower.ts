@@ -27,3 +27,42 @@ export const buildFloorsData = (params: TowerParameters): FloorSlice[] => {
   }
   return slices
 }
+
+export type SphereInstance = {
+  position: [number, number, number]
+  radius: number
+  color: string
+}
+
+export const buildSphereInstances = (params: TowerParameters): SphereInstance[] => {
+  const slices = buildFloorsData(params)
+  const instances: SphereInstance[] = []
+  const perFloor = Math.max(1, Math.round(params.spheresPerFloor))
+  const twoPi = Math.PI * 2
+
+  slices.forEach((slice) => {
+    const baseY = slice.y + params.floorHeight * 0.5
+    const radius = params.sphereRadius * slice.scale
+    const layoutRadius = params.baseRadius * slice.scale
+    for (let i = 0; i < perFloor; i += 1) {
+      let x = 0
+      let z = 0
+      if (perFloor > 1) {
+        const angle = (i / perFloor) * twoPi
+        x = Math.cos(angle) * layoutRadius
+        z = Math.sin(angle) * layoutRadius
+      }
+      const cosRot = Math.cos(slice.rotation)
+      const sinRot = Math.sin(slice.rotation)
+      const rotatedX = x * cosRot - z * sinRot
+      const rotatedZ = x * sinRot + z * cosRot
+      instances.push({
+        position: [rotatedX, baseY, rotatedZ],
+        radius: radius,
+        color: slice.color,
+      })
+    }
+  })
+
+  return instances
+}

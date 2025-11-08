@@ -23,6 +23,8 @@ export function ControlsPanel() {
     floors,
     floorHeight,
     baseRadius,
+    sphereRadius,
+    spheresPerFloor,
     twistRange,
     scaleRange,
     twistEasing,
@@ -78,6 +80,8 @@ export function ControlsPanel() {
     floors,
     floorHeight,
     baseRadius,
+    sphereRadius,
+    spheresPerFloor,
     twistRange: { ...twistRange },
     scaleRange: { ...scaleRange },
     twistEasing,
@@ -192,6 +196,26 @@ export function ControlsPanel() {
               step={0.1}
               value={baseRadius}
               onChange={(value) => setParams({ baseRadius: value })}
+            />
+          </section>
+
+          <section>
+            <h3>Sphere Layout</h3>
+            <Slider
+              label="Sphere Radius (m)"
+              min={0.3}
+              max={4}
+              step={0.05}
+              value={sphereRadius}
+              onChange={(value) => setParams({ sphereRadius: value })}
+            />
+            <Slider
+              label="Spheres per Floor"
+              min={1}
+              max={12}
+              step={1}
+              value={spheresPerFloor}
+              onChange={(value) => setParams({ spheresPerFloor: Math.round(value) })}
             />
           </section>
 

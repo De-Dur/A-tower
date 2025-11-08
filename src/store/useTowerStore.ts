@@ -12,6 +12,8 @@ export interface TowerParameters {
   floors: number
   floorHeight: number
   baseRadius: number
+  sphereRadius: number
+  spheresPerFloor: number
   twistRange: Range
   scaleRange: Range
   twistEasing: GradientEasing
@@ -41,6 +43,8 @@ const baseParameters: TowerParameters = {
   floors: 36,
   floorHeight: 3.2,
   baseRadius: 5,
+  sphereRadius: 1.2,
+  spheresPerFloor: 1,
   twistRange: { min: 0, max: 220 },
   scaleRange: { min: 1, max: 0.35 },
   twistEasing: 'easeInOut',
@@ -94,6 +98,8 @@ function cloneParameters(params: TowerParameters): TowerParameters {
     floors: params.floors,
     floorHeight: params.floorHeight,
     baseRadius: params.baseRadius,
+    sphereRadius: params.sphereRadius,
+    spheresPerFloor: params.spheresPerFloor,
     twistRange: { ...params.twistRange },
     scaleRange: { ...params.scaleRange },
     twistEasing: params.twistEasing,
@@ -108,6 +114,8 @@ function sanitizeParameters(input: TowerParameters): TowerParameters {
     floors: clamp(Math.round(input.floors || baseParameters.floors), 1, 200),
     floorHeight: clamp(input.floorHeight || baseParameters.floorHeight, 1, 10),
     baseRadius: clamp(input.baseRadius || baseParameters.baseRadius, 1, 15),
+    sphereRadius: clamp(input.sphereRadius || baseParameters.sphereRadius, 0.2, 5),
+    spheresPerFloor: clamp(Math.round(input.spheresPerFloor || baseParameters.spheresPerFloor), 1, 12),
     twistRange: sanitizeRange(input.twistRange || baseParameters.twistRange, {
       min: -720,
       max: 720,

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import type { TowerParameters } from '../store/useTowerStore'
-import { buildFloorsData } from './tower'
+import { buildFloorsData, buildSphereInstances } from './tower'
 
 type MeshBuffers = {
   positions: number[]
@@ -63,18 +63,16 @@ const pushGeometry = (
 const buildTowerBuffers = (params: TowerParameters): MeshBuffers => {
   const buffers: MeshBuffers = { positions: [], normals: [], colors: [], indices: [] }
   const slices = buildFloorsData(params)
-  const slabHeight = params.floorHeight * 0.9
-  const slabSize = params.baseRadius * 2
+  const sphereGeometry = new THREE.SphereGeometry(1, 24, 18)
+  const sphereInstances = buildSphereInstances(params)
 
-  slices.forEach((slice) => {
-    const matrix = new THREE.Matrix4()
-    matrix.compose(
-      new THREE.Vector3(0, slice.y + slabHeight / 2, 0),
-      new THREE.Quaternion().setFromEuler(new THREE.Euler(0, slice.rotation, 0)),
-      new THREE.Vector3(slice.scale, 1, slice.scale),
+  sphereInstances.forEach((instance) => {
+    const matrix = new THREE.Matrix4().compose(
+      new THREE.Vector3(...instance.position),
+      new THREE.Quaternion(),
+      new THREE.Vector3(instance.radius, instance.radius, instance.radius),
     )
-    const geometry = new THREE.BoxGeometry(slabSize, slabHeight, slabSize)
-    pushGeometry(geometry, matrix, slice.color, buffers)
+    pushGeometry(sphereGeometry, matrix, instance.color, buffers)
   })
 
   const coreHeight = slices.length * params.floorHeight
