@@ -1,42 +1,17 @@
 import { Suspense, useMemo } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stats } from '@react-three/drei'
-import * as THREE from 'three'
-import chroma from 'chroma-js'
-import { interpolateRange } from '../lib/gradients'
 import { useTowerStore } from '../store/useTowerStore'
+import { buildFloorsData, type FloorSlice } from '../lib/tower'
 
-type Floor = {
-  y: number
-  rotation: number
-  scale: number
-  color: string
-}
+type Floor = FloorSlice
 
 export function TowerScene() {
   const params = useTowerStore()
 
-  const chromaScale = useMemo(
-    () => chroma.scale([params.bottomColor, params.topColor]).mode('lab'),
-    [params.bottomColor, params.topColor],
-  )
-
   const floorsData: Floor[] = useMemo(() => {
-    const count = Math.max(1, Math.floor(params.floors))
-    const collection: Floor[] = []
-    for (let i = 0; i < count; i += 1) {
-      const t = count === 1 ? 0 : i / (count - 1)
-      collection.push({
-        y: i * params.floorHeight,
-        rotation: THREE.MathUtils.degToRad(
-          interpolateRange(params.twistRange, params.twistEasing, t),
-        ),
-        scale: interpolateRange(params.scaleRange, params.scaleEasing, t),
-        color: chromaScale(t).hex(),
-      })
-    }
-    return collection
-  }, [params, chromaScale])
+    return buildFloorsData(params)
+  }, [params])
 
   const totalHeight = useMemo(
     () => (floorsData.at(-1)?.y ?? 0) + params.floorHeight,

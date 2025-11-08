@@ -78,6 +78,42 @@ header h1 {
   margin: 0 0 0.5rem 0;
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.tab-menu {
+  display: inline-flex;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 0.15rem;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.tab-button {
+  border: none;
+  background: transparent;
+  color: #cbd5f5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.tab-button.active {
+  background: #0ea5e9;
+  color: #020617;
+}
+
+.tab-button:not(.active):hover {
+  color: #ffffff;
+}
+
 .panel section {
   display: flex;
   flex-direction: column;
@@ -205,6 +241,35 @@ header h1 {
   height: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(148, 163, 184, 0.4);
+}
+
+.export-panel p {
+  margin: 0;
+  color: #cbd5f5;
+  line-height: 1.4;
+}
+
+.export-panel .btn {
+  width: fit-content;
+}
+
+.export-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.export-status {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+}
+
+.export-status.done {
+  color: #86efac;
+}
+
+.export-status.error {
+  color: #fecaca;
 }
 
 .stats-overlay {
